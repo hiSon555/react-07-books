@@ -11,11 +11,8 @@ function Home() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const t = keyword.trim();
-
-        if (!t) return;
-
-        setKeyword("")
+        const k = keyword.trim();
+        if (!k) return;
 
         // 이 입력된 keyword을 가지고 /searach 주소로 이동시켜줘야 함
         // 함수(기능) 동작 중에 "이동"을 포함시키기 위해서는
@@ -31,7 +28,7 @@ function Home() {
         // 우리는 지금 string을 "주소"로 이동시키고 있는 상황
         // URL은 사실 "영어"와 정해진 특수문자만 가능   => 사용자가 input에 어떤 걸 칠지 모르기에 변환이 필요
         // sting을 "주소"에 표현하기 위해 변환 작업을 해주는 명령 encodeURIComponent(변환할 스트링)
-        navigate(`/search?keyword=${encodeURIComponent(t)}`);
+        navigate(`/search?keyword=${encodeURIComponent(k)}`);
     };
 
     return (

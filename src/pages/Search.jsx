@@ -6,55 +6,35 @@ import { useEffect, useState } from "react";
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 function Search() {
-    // Search 컴포넌트가 뜨는 상황은
-    // 사용자가 Home에서 뭔가 keyword를 입력했고, 그걸 Home 컴포넌트는
-    // 쿼리스트링 keyword=아무개어쩌고 담아서 전달해준 상황
-
-    // 1. 쿼리스트링 keyword=아무개어쩌고 에서 '아무개어쩌고'를 가져와서
-
-    // 3. 그걸 화면에 출력
-
-    // 쿼리스트링에서 제공된 값을 가져올 때 써야 되는 함수 : useSearchParams()
     const [searchParams] = useSearchParams();
     const keyword = searchParams.get("keyword");
 
-    // 동적 라우팅을 통한 params와 searchParams의 큰 차이
-    // params는 무조건 있음. searchParams는 있을 수도 있고 없을 수도 있음.
-
-    // 1. /search               => keyword의 타입 : null
-    // 2. /search?a=10          =>               : null
-    // 3. /search?keyword=      =>               : ""
-    // 4. /search?keyword=Mate  =>               : "Math"
-
-    // 2. 백엔드에게 '아무개어쩌고'를 이용하여 결과를 달라고 해서, 받아서, 가공해서, 저장
     const [list, setList] = useState([]);
-
-    // Google Books API를 사용할 건데
-    // 누구나 사용할 수 있게 공개된 API가 아님. 기존에 등록해둔 개발자만 사용할 수 있음
-    // 그렇게 등록을 하면 Token을 줌      (깃허브와 같은 경우)
-    // 요청을 보낼 때 토큰을 요청에 담아서 보내야 함
-
-    // Token은 "내 신분증"
-    // => 외부에 노출됨
-    // Token이나, 비밀번호 같은 민감한 정보는 절대 코드에 포함시켜서는 안 됨
-    // => 이러한 민감한 정보를 코드 상에 사용하지 않도록 존재하는 장치 => "환경변수"
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // keyword라는 변수에 null (타입)으로 나타나는데
-        // 이걸 템플릿 리터럴을 통해 string 안에 값을 찍었더니 진짜로 string인 "null"이 찍힘, undefined도 마찬가지
-
-        // 근본적으로 생각하면 keyword가 string이 없으면 (빈 문자열도 포함) 요청을 보내면 안 됨
         if (!keyword) return;
+
+        setLoading(true);
 
         fetch(
             `https://www.googleapis.com/books/v1/volumes?q=${keyword}&maxResults=20&key=${API_KEY}`,
         )
             .then(res => res.json())
             .then(json => setList(json.items))
-            .catch(err => console.log(err));
+            .catch(err => console.log(err))
+            .finally(() => setLoading(false));
     }, []);
 
-    return <></>;
+    return <div>
+        <h3>검색 결과 : {keyword}</h3>
+
+        {loading ? (
+            <div>로딩 중입니다...</div>
+        ) : (
+            list.length === 0 ? (<div>검색 결과가 없습니다.</div>) : (<div></div>)
+        )}
+    </div>;
 }
 
 export default Search;

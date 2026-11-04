@@ -28,5 +28,7 @@ dist-ssr
 # .env.local    (로컬환경[내컴퓨터] 개발 때 사용되는 환경변수)
 # .env.dev      (개발서버에서 구동시킬 때 사용되는 환경변수)
 # .env.prod 또는 .env.production (실제 라이브 서버에서 구동시킬 때 사용되는 환경변수)
+# VITE는 위 4가지만 불러들이니 .env.blabla와 같은 건 읽어들이지 않음
+
 # .env.sample 어떠한 환경변수를 해야 프로그램이 구동될 수 있는지 key만 남겨둔, 알려주는 파일
-/.env
+.env*

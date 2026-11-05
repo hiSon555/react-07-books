@@ -1,6 +1,7 @@
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
+import SearchBar from "../components/SearchBar.jsx";
 
 // VITE가 불러들여준 환경변수를 꺼낼 때는 function 밖에서 -> export 처리 하기 위해서
 
@@ -27,17 +28,6 @@ function Search() {
     // 검색 결과를 담당하는 Search 컴포넌트에서도
     // 검색이 가능하도록 설계 변경 하니,
     // Home에 있는 내용과 다르지 않음을 확인
-    const navigate = useNavigate();
-    const [input, setInput] = useState("");
-
-    const handleChange = e => setInput(e.target.value);
-    const handleSubmit = e => {
-        e.preventDefault();
-        const k = input.trim();
-        if (!k) return;
-
-        navigate(`/search?keyword=${encodeURIComponent(k)}`);
-    };
     //      => 컴포넌트 분리 고려
 
     useEffect(() => {
@@ -57,10 +47,8 @@ function Search() {
     return (
         <div className={styles.container}>
             <h3>검색 결과 : {keyword}</h3>
-            <form onSubmit={handleSubmit}>
-                <input onChange={handleChange} value={input} />
-                <button type={"submit"}>검색</button>
-            </form>
+
+            <SearchBar />
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
             ) : list.length === 0 ? (

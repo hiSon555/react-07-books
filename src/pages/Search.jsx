@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
 
@@ -20,9 +20,21 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 function Search() {
     const [searchParams] = useSearchParams();
     const keyword = searchParams.get("keyword");
+    const navigate = useNavigate();
+    const [input, setInput] = useState("")
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) =>
+        setInput(e.target.value)
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const k = input.trim();
+        if (!k) return;
+        navigate(`/search?keyword=${encodeURIComponent(k)}`);
+    }
 
     useEffect(() => {
         if (!keyword) return;
@@ -41,7 +53,10 @@ function Search() {
     return (
         <div className={styles.container}>
             <h3>검색 결과 : {keyword}</h3>
-
+            <form onSubmit={handleSubmit}>
+                <input onChange={handleChange} value={input} />
+                <button type={"submit"}>검색</button>
+            </form>
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
             ) : list.length === 0 ? (
@@ -58,10 +73,12 @@ function Search() {
                                 옵셔널 체이닝 연산자인 "?. "을 통해서
                                 있으면 값을 불러오고, 없으면 말라고 표현
                             */}
-                            {item.volumeInfo.imageLinks ? ( <img
-                            className={styles.cover}
-                            src={item.volumeInfo.imageLinks.thumbnail}
-                            alt={item.volumeInfo.title}/>
+                            {item.volumeInfo.imageLinks ? (
+                                <img
+                                    className={styles.cover}
+                                    src={item.volumeInfo.imageLinks.thumbnail}
+                                    alt={item.volumeInfo.title}
+                                />
                             ) : (
                                 <div className={styles.no_cover}>No cover</div>
                             )}
@@ -78,10 +95,11 @@ function Search() {
 
                                 저자가 없는 경우가 발생됨 => 옵셔널 체이닝 연산자
                             */}
-                            <div className={styles.author}>{item.volumeInfo.authors?.join(", ")}</div>
-
+                            <div className={styles.author}>
+                                {item.volumeInfo.authors?.join(", ")}
+                            </div>
                         </Link>
-                    )
+                    );
                 })
             )}
         </div>

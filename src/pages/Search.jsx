@@ -20,21 +20,25 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 function Search() {
     const [searchParams] = useSearchParams();
     const keyword = searchParams.get("keyword");
-    const navigate = useNavigate();
-    const [input, setInput] = useState("")
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) =>
-        setInput(e.target.value)
+    // 검색 결과를 담당하는 Search 컴포넌트에서도
+    // 검색이 가능하도록 설계 변경 하니,
+    // Home에 있는 내용과 다르지 않음을 확인
+    const navigate = useNavigate();
+    const [input, setInput] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleChange = e => setInput(e.target.value);
+    const handleSubmit = e => {
         e.preventDefault();
         const k = input.trim();
         if (!k) return;
+
         navigate(`/search?keyword=${encodeURIComponent(k)}`);
-    }
+    };
+    //      => 컴포넌트 분리 고려
 
     useEffect(() => {
         if (!keyword) return;

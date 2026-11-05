@@ -2,15 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import styles from "./SearchBar.module.css";
 
-function SearchBar() {
+function SearchBar({ keyword }) {
     const navigate = useNavigate();
-    const [keyword, setKeyword] = useState("");
+    const [input, setInput] = useState(keyword || "");
 
-    const handleChange = e => setKeyword(e.target.value);
+    const handleChange = e => setInput(e.target.value);
 
     const handleSubmit = e => {
         e.preventDefault();
-        const k = keyword.trim();
+        const k = input.trim();
         if (!k) return;
 
         // 이 입력된 keyword을 가지고 /searach 주소로 이동시켜줘야 함
@@ -28,15 +28,15 @@ function SearchBar() {
         // URL은 사실 "영어"와 정해진 특수문자만 가능   => 사용자가 input에 어떤 걸 칠지 모르기에 변환이 필요
         // sting을 "주소"에 표현하기 위해 변환 작업을 해주는 명령 encodeURIComponent(변환할 스트링)
         navigate(`/search?keyword=${encodeURIComponent(k)}`);
-}
-        return (
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <input className={styles.input} onChange={handleChange} value={keyword} />
-                <button className={styles.button} type={"submit"}>
-                    검색
-                </button>
-            </form>
-        );
+    };
+    return (
+        <form className={styles.form} onSubmit={handleSubmit}>
+            <input className={styles.input} onChange={handleChange} value={input} />
+            <button className={styles.button} type={"submit"}>
+                검색
+            </button>
+        </form>
+    );
 }
 
 export default SearchBar;

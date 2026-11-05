@@ -19,16 +19,16 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 //           여러 요소(수출품)가 존재하는 객체 안에서 하나를 지정
 
 function Search() {
-    const [searchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();   // 변현된 state임
+                                                                // react-router는 쿼리스트링을 state를 만들어서 저장하고 있음
     const keyword = searchParams.get("keyword");
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    // 검색 결과를 담당하는 Search 컴포넌트에서도
-    // 검색이 가능하도록 설계 변경 하니,
-    // Home에 있는 내용과 다르지 않음을 확인
-    //      => 컴포넌트 분리 고려
+    
+    // useEffect(함수, [의존성배열]);
+    // 의존성배열은 배열 안에 바뀔 수 있는 값을 갖고 있는 변수(state, 함수)를 요소로 가질 수 있으며,
+    // 의존성배열에 집어넣은 변수가 바뀔 때마다 useEffect는 함수를 재발동 시킴
 
     useEffect(() => {
         if (!keyword) return;
@@ -42,7 +42,22 @@ function Search() {
             .then(json => setList(json.items))
             .catch(err => console.log(err))
             .finally(() => setLoading(false));
-    }, []);
+    }, [keyword]);
+
+    // 검색 결과를 담당하는 Search 컴포넌트에서도
+    // 검색이 가능하도록 설계 변경 하니,
+    // Home에 있는 내용과 다르지 않음을 확인
+    //      => 컴포넌트 분리 고려
+
+    // 컴포넌트가 그려지는 조건은 "주소"이긴 한데, 정확히는 "경로"의 변경
+
+    // SearchBar에서 사용자가 키워드를 입력하고 검색을 시키면 주소가
+    // http://localhost:5173/search?keyword=주소글자
+    // =>
+    // http://localhost:5173/search?keyword=다른주소글자
+    // 로만 변경이 되어서 Search라고 하는 컴포넌트가 다시 그려지지 않음
+    // 이 말은, 검색을 사용자가 바꾸기 이전에 떠 있던 Search가 그대로 있다는 것
+    // 그렇기에 리렌더링이 되지 않음 => useEffect가 발동되어서 검색 결과를 다시 받아와야 되는데 안 함 
 
     return (
         <div className={styles.container}>

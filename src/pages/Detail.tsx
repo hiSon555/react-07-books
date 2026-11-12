@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { API_KEY } from "./Search.jsx";
+import { API_KEY } from "./Search.tsx";
 import styles from "./Detail.module.css";
 
 function Detail() {

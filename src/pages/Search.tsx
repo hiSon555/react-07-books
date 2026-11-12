@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
-import SearchBar from "../components/SearchBar.jsx";
+import SearchBar from "../components/SearchBar.tsx";
 
 // VITE가 불러들여준 환경변수를 꺼낼 때는 function 밖에서 -> export 처리 하기 위해서
 
@@ -44,21 +44,6 @@ function Search() {
             .finally(() => setLoading(false));
     }, [keyword]);
 
-    // 검색 결과를 담당하는 Search 컴포넌트에서도
-    // 검색이 가능하도록 설계 변경 하니,
-    // Home에 있는 내용과 다르지 않음을 확인
-    //      => 컴포넌트 분리 고려
-
-    // 컴포넌트가 그려지는 조건은 "주소"이긴 한데, 정확히는 "경로"의 변경
-
-    // SearchBar에서 사용자가 키워드를 입력하고 검색을 시키면 주소가
-    // http://localhost:5173/search?keyword=주소글자
-    // =>
-    // http://localhost:5173/search?keyword=다른주소글자
-    // 로만 변경이 되어서 Search라고 하는 컴포넌트가 다시 그려지지 않음
-    // 이 말은, 검색을 사용자가 바꾸기 이전에 떠 있던 Search가 그대로 있다는 것
-    // 그렇기에 리렌더링이 되지 않음 => useEffect가 발동되어서 검색 결과를 다시 받아와야 되는데 안 함 
-
     return (
         <div className={styles.container}>
             <h3>검색 결과 : {keyword}</h3>
@@ -72,14 +57,7 @@ function Search() {
                 list.map((item, i) => {
                     return (
                         <Link key={i} to={`/detail/${item.id}`} className={styles.book}>
-                            {/*
-                                표지를 출력하려고 했더니,
-                                표지가 없는 책이 있어서
-                                thumbnail에 접근을 할 수 없다고 에러가 발생됨
-
-                                옵셔널 체이닝 연산자인 "?. "을 통해서
-                                있으면 값을 불러오고, 없으면 말라고 표현
-                            */}
+                          
                             {item.volumeInfo.imageLinks ? (
                                 <img
                                     className={styles.cover}

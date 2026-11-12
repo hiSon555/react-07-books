@@ -3,32 +3,39 @@ import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
 import SearchBar from "../components/SearchBar.tsx";
 
-// VITE가 불러들여준 환경변수를 꺼낼 때는 function 밖에서 -> export 처리 하기 위해서
+export type Book = {
+    id: string;
+    volumeInfo : {
+        title : string;
+        imageLinks? : {
+            thumbnail : string;
+        }
+        authors? : string[];
+        description? : string | undefined;
+    };
+}
 
-// export를 통해 다시금 다른 파일에서 이용할 것 같은 것은
-// 여러번 메모리에 상주시킬 것이 아니라 하나를 만들고
-// 그걸 export(수출) 시켜서 다른 파일에서 import(수입)해 사용하도록 하는 게
-// 자원관리 상 유리 + 코드를 여러번 다시 쓸 필요 없음 (유지 보수도 용이)
+// 선택적 프로퍼티를 표기하는 ? 는
+// 결국 "값이 애초부터 없다" 는 undefined의 다른 말
+
+type ApiResponse = {
+    kind: string;
+    totalItems: number;
+    items: Book[];
+};
 
 export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
-// export default => 파일 하나에 유일하게 1개만 "대표 수출품"으로 지정 가능
-//                  import 때 import Search from "./Search.jsx" 처럼, 유일값으로 불러옴
-// export => 몇 개든 상관없이 지정 가능
-//           import 때 import { API_KEY } from "./Search.jsx" 처럼,
-//           여러 요소(수출품)가 존재하는 객체 안에서 하나를 지정
-
 function Search() {
-    const [searchParams] = useSearchParams();   // 변현된 state임
-                                                                // react-router는 쿼리스트링을 state를 만들어서 저장하고 있음
+    // useParams > URL에서 "경로" 에 동적 라우팅으로 분류되는 부분
+    //      => useParams를 통해 가져오는 값은 string | undefined 임
+    // useSearchParams > URL에서 "쿼리 스트링"에 해당하는 부분
+    //      => useSearchParams를 통해 가져오는 값은 sting | null 임
+    const [searchParams] = useSearchParams();
     const keyword = searchParams.get("keyword");
 
-    const [list, setList] = useState([]);
+    const [list, setList] = useState<Book[]>([]);
     const [loading, setLoading] = useState(false);
-    
-    // useEffect(함수, [의존성배열]);
-    // 의존성배열은 배열 안에 바뀔 수 있는 값을 갖고 있는 변수(state, 함수)를 요소로 가질 수 있으며,
-    // 의존성배열에 집어넣은 변수가 바뀔 때마다 useEffect는 함수를 재발동 시킴
 
     useEffect(() => {
         if (!keyword) return;
@@ -39,8 +46,13 @@ function Search() {
             `https://www.googleapis.com/books/v1/volumes?q=${keyword}&maxResults=20&key=${API_KEY}`,
         )
             .then(res => res.json())
-            .then(json => setList(json.items))
-            .catch(err => console.log(err))
+            .then((json:ApiResponse) => setList(json.items))
+            .catch((err: unknown) => {
+                if (err instanceof Error) {
+                    console.log(err.message);
+                } else
+                console.log(err)
+            })
             .finally(() => setLoading(false));
     }, [keyword]);
 
@@ -48,7 +60,20 @@ function Search() {
         <div className={styles.container}>
             <h3>검색 결과 : {keyword}</h3>
 
-            <SearchBar keyword={keyword} />
+            {/*
+                 useSearchParams, 쿼리스트링에서 가져온 값은 string | null이기 때문에
+                 SearchBar 받을 수 있는 keyword 속성은 string만 가능함
+
+                 에러내용 -------
+                 Type string | null is not assignable to type string
+                 지금 이 자리는 string만 들어올 수 있는데 넣은 게 string | null 이라서 안 돼
+
+                 1. null이 되는 상황 파악
+                 2. 검색 키워드가 없다는 거니까, 인풋에 넣을 값이 없다고 해석하면 되는 것
+                 3.  string인 ""값으로 처리해줘도 아무런 문제가 없겠구나 => 논리합 처리
+            */}
+
+            <SearchBar keyword={keyword ?? ""} />
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
             ) : list.length === 0 ? (
@@ -69,17 +94,6 @@ function Search() {
                             )}
 
                             <div className={styles.title}>{item.volumeInfo.title}</div>
-                            {/*
-                                authors는 array임
-                                그럼 map을 돌려서 표현해야 하는가?
-                                .join() : array 안에 요소들을 하나로 합쳐주는 메서드
-                                          string 요소가 들어있을 때 가장 많이 씀
-
-                                          const arr = ["홍길동", "김철수", "홍영희"]
-                                          arr.join(", ");       => "홍길동, 김철수, 홍영희"
-
-                                저자가 없는 경우가 발생됨 => 옵셔널 체이닝 연산자
-                            */}
                             <div className={styles.author}>
                                 {item.volumeInfo.authors?.join(", ")}
                             </div>
